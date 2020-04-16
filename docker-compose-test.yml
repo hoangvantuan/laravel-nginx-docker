@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  funclub-test-nginx:
+    image: funclub-test-nginx:latest
+    build:
+      context: .
+      args:
+        - "BUILD_ARGUMENT_ENV=test"
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: funclub-test-nginx
+    restart: always
+    volumes:
+      - .:/var/www/html:ro
+    ports:
+      - "9090:80"
+    depends_on:
+      - funclub-test-laravel
+
+  funclub-test-laravel:
+    image: funclub-test-laravel:latest
+    build:
+      context: .
+      args:
+        - "BUILD_ARGUMENT_ENV=test"
+      dockerfile: ./Dockerfile
+    container_name: funclub-test-laravel
+    restart: always
+    volumes:
+      - .:/var/www/html
+    expose:
+      - "9000"
+
+  funclub-test-supervisord:
+    image: funclub-test-laravel:latest
+    container_name: funclub-test-supervisord
+    restart: always
+    volumes:
+      - .:/var/www/html
+    user: root
+    command: ["/usr/bin/supervisord"]
